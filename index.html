@@ -18,7 +18,6 @@
             color: #333;
         }
 
-        /* Header */
         .header {
             background-color: #003d7a;
             color: white;
@@ -59,14 +58,12 @@
             background-color: rgba(244, 67, 54, 0.3);
         }
 
-        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 24px;
         }
 
-        /* Toolbar */
         .toolbar {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -160,7 +157,6 @@
             padding: 0;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -235,7 +231,6 @@
             margin-top: 24px;
         }
 
-        /* Lista de contatos */
         .contatos-lista {
             display: grid;
             gap: 12px;
@@ -290,7 +285,6 @@
             margin: 0 auto;
         }
 
-        /* Loading spinner */
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -323,7 +317,6 @@
             border: 1px solid #66bb6a;
         }
 
-        /* Responsivo */
         @media (max-width: 768px) {
             .toolbar {
                 grid-template-columns: 1fr;
@@ -346,10 +339,13 @@
                 font-size: 24px;
             }
         }
+
+        input[type="file"] {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="header-content">
             <h1>📞 Agenda Telefônica</h1>
@@ -358,12 +354,9 @@
         </div>
     </div>
 
-    <!-- Container Principal -->
     <div class="container">
-        <!-- Alerta -->
         <div class="alert" id="alerta"></div>
 
-        <!-- Toolbar -->
         <div class="toolbar">
             <input
                 type="text"
@@ -381,11 +374,9 @@
             </button>
         </div>
 
-        <!-- Lista de Contatos -->
         <div id="contatosList" class="contatos-lista"></div>
     </div>
 
-    <!-- Modal -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -428,19 +419,16 @@
     </div>
 
     <script>
-        // Configuração Supabase (EDITE COM SEUS DADOS)
-	const SUPABASE_URL = 'https://xctrqoylezyuirgyovgg.supabase.co';
-	const SUPABASE_KEY = 'sb_publishable_8X5_2KlwYfl3VRLpvOaKtQ_1jWEoKiW';
+        const SUPABASE_URL = 'https://xctrqoylezyuirgyovgg.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_8X5_2KlwYfl3VRLpvOaKtQ_1jWEoKiW';
 
         const { createClient } = window.supabase;
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Estado global
         let contatos = [];
         let editandoId = null;
         let conectado = false;
 
-        // Elementos do DOM
         const elementos = {
             modal: document.getElementById('modal'),
             form: document.getElementById('formContato'),
@@ -464,7 +452,6 @@
             }
         };
 
-        // Inicialização
         async function inicializar() {
             await testarConexao();
             await carregarContatos();
@@ -472,7 +459,6 @@
             monitorarMudancasRealtime();
         }
 
-        // Testar conexão
         async function testarConexao() {
             try {
                 const { data, error } = await supabase
@@ -495,7 +481,6 @@
             }
         }
 
-        // Carregar contatos
         async function carregarContatos() {
             elementos.btnAtualizar.disabled = true;
             elementos.btnAtualizar.classList.add('spin');
@@ -520,7 +505,6 @@
             }
         }
 
-        // Monitorar mudanças realtime
         function monitorarMudancasRealtime() {
             supabase
                 .channel('contatos-changes')
@@ -534,7 +518,6 @@
                 .subscribe();
         }
 
-        // Renderizar contatos
         function renderizarContatos() {
             const filtro = elementos.busca.value.toLowerCase();
             const filtrados = contatos.filter(c =>
@@ -570,12 +553,10 @@
             `).join('');
         }
 
-        // Atualizar contagem
         function atualizarContagem() {
             elementos.contatoCount.textContent = contatos.length;
         }
 
-        // Abrir modal
         function abrirModal(titulo = '➕ Novo Contato') {
             elementos.modalTitulo.textContent = titulo;
             elementos.form.style.display = 'block';
@@ -583,20 +564,17 @@
             elementos.campos.nome.focus();
         }
 
-        // Fechar modal
         function fecharModal() {
             elementos.modal.classList.remove('ativo');
             resetarFormulario();
         }
 
-        // Resetar formulário
         function resetarFormulario() {
             elementos.form.reset();
             editandoId = null;
             Object.values(elementos.campos).forEach(campo => campo.value = '');
         }
 
-        // Iniciar edição
         function iniciarEdicao(id) {
             const contato = contatos.find(c => c.id === id);
             if (!contato) return;
@@ -612,7 +590,6 @@
             abrirModal('✏️ Editar Contato');
         }
 
-        // Salvar contato
         async function salvarContato() {
             const nome = elementos.campos.nome.value.trim();
             const telefone = elementos.campos.telefone.value.trim();
@@ -637,7 +614,6 @@
 
             try {
                 if (editandoId) {
-                    // Editar
                     const { error } = await supabase
                         .from('contatos')
                         .update(dadosContato)
@@ -646,7 +622,6 @@
                     if (error) throw error;
                     mostrarAlerta('Contato atualizado!', 'sucesso', 2000);
                 } else {
-                    // Novo
                     const { error } = await supabase
                         .from('contatos')
                         .insert([dadosContato]);
@@ -662,7 +637,6 @@
             }
         }
 
-        // Deletar contato
         async function deletarContato(id) {
             if (!confirm('Tem certeza que deseja deletar este contato?')) return;
 
@@ -680,7 +654,6 @@
             }
         }
 
-        // Mostrar alerta
         function mostrarAlerta(mensagem, tipo = 'erro', duracao = 0) {
             elementos.alerta.textContent = mensagem;
             elementos.alerta.className = `alert show ${tipo}`;
@@ -692,14 +665,12 @@
             }
         }
 
-        // Escapar HTML
         function escaparHtml(texto) {
             const div = document.createElement('div');
             div.textContent = texto;
             return div.innerHTML;
         }
 
-        // Anexar eventos
         function anexarEventos() {
             elementos.btnNovoContato.addEventListener('click', () => {
                 editandoId = null;
@@ -722,7 +693,6 @@
             });
         }
 
-        // Iniciar
         document.addEventListener('DOMContentLoaded', inicializar);
     </script>
 </body>
